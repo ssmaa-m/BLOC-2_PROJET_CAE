@@ -1,163 +1,92 @@
-import {
-  Chip,
-  Stack,
-  Typography,
-  Skeleton,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
+import { Stack, Typography, Skeleton, Chip, Avatar } from '@mui/material';
+import { Theme } from '@mui/material/styles';
 import profileHeroHeader from '../../../assets/images/profile_hero_header.jpg';
-import { ProfileImage, ProfileInfoDto } from '../../../types';
+import { ProfileInfoDto } from '../../../types';
 import { Link } from 'react-router-dom';
-import { EditOutlined } from '@mui/icons-material';
-import { UserContext } from '../../../contexts/UserContext';
-import { useContext, useState, Dispatch, SetStateAction } from 'react';
-import { ProfileImageModal } from '../../../components/ProfileImageModal';
 
-export const ProfileBanner = ({
-  user,
-  setUser,
-  onError,
-  onSuccess,
-}: {
-  user?: ProfileInfoDto;
-  setUser: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
-  onError: (errorMessage: string) => void;
-  onSuccess: (message: string) => void;
-}) => {
-  const [openProfileImageModal, setOpenProfileImageModal] = useState(false);
-  const { authenticatedUser } = useContext(UserContext);
-
-  const handleAvatarSelect = async (avatar: ProfileImage) => {
-    if (!user) return;
-
-    setOpenProfileImageModal(false);
-
-    const previousAvatar = user.avatar;
-    if (previousAvatar === avatar.path) return;
-
-    // Optimistic update
-    setUser((prev) => {
-      if (!prev) return prev;
-      return { ...prev, avatar: avatar.path };
-    });
-
-    try {
-      const response = await fetch(`/api/members/${user.id}/avatar`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
-        },
-        body: JSON.stringify(avatar),
-      });
-      if (!response.ok) throw new Error('Failed to update profile image');
-      onSuccess('Profile image updated successfully');
-    } catch (err: unknown) {
-      // Rollback
-      setUser((prev) => {
-        if (!prev) return prev;
-        return { ...prev, avatar: previousAvatar };
-      });
-      onError('Failed to update profile image');
-    }
-  };
-
+export const ProfileBanner = ({ user }: { user?: ProfileInfoDto }) => {
   return (
-    <>
-      <Stack
-        sx={{
-          background: `linear-gradient(0, rgba(0, 0, 0, 0.2)), url("${profileHeroHeader}") no-repeat center/cover`,
-        }}
-        spacing="0.375rem"
-        width={1}
-        height="fit-content"
-        padding="5rem 5rem"
-      >
-        <Stack spacing="0.75rem" alignItems="center" direction="row">
+    <Stack
+      sx={{
+        background: `linear-gradient(0, rgba(0, 0, 0, 0.2)), url("${profileHeroHeader}") no-repeat center/cover`,
+      }}
+      spacing="0.375rem"
+      width={1}
+      height="fit-content"
+      padding="5rem"
+      zIndex={15}
+    >
+      <Stack spacing="0.75rem" alignItems="center" direction="row">
+        {user ? (
+          <Stack
+            position="relative"
+            borderRadius="100rem"
+            overflow="hidden"
+            height="2.5rem"
+            width="2.5rem"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Avatar
+              src={user.avatar ? `/assets/avatars/${user.avatar}` : ''}
+              sx={{
+                width: '2.5rem',
+                height: '2.5rem',
+              }}
+            />
+          </Stack>
+        ) : (
+          <Skeleton variant="circular" width="2.5rem" height="2.5rem" />
+        )}
+        <Typography variant="h1">
           {user ? (
-            <Stack
-              position="relative"
-              borderRadius="100rem"
-              overflow="hidden"
-              height="2.5rem"
-              width="2.5rem"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <img
-                src={user.avatar ? `/assets/avatars/${user.avatar}` : ''}
-                style={{
-                  flexShrink: 0,
-                  width: '2.5rem',
-                  height: '2.5rem',
-                  position: 'absolute',
+            user.tag
+          ) : (
+            <Skeleton variant="text" height="3.375rem" width="10rem" />
+          )}
+        </Typography>
+      </Stack>
+      <Stack direction="row" spacing="0.25rem" alignItems="center">
+        {user ? (
+          <>
+            {user.team && (
+              <Chip
+                data-testid={`user-team-chip`}
+                component={Link}
+                to={`/teams/${user.team.id}`}
+                size="small"
+                color="inverse"
+                label={`Team ${user.team.name}`}
+                clickable
+                sx={{
+                  '& .MuiChip-label': {
+                    color: (theme: Theme) => theme.palette.background.s0,
+                  },
+                  '&:hover': {
+                    background: (theme: Theme) =>
+                      `color-mix(in srgb, ${theme.palette.background.s1}, white 88%)`,
+                  },
                 }}
               />
-              {user.id === authenticatedUser?.id && (
-                <Tooltip title="Changer l'avatar" arrow>
-                  <IconButton
-                    onClick={() => setOpenProfileImageModal(true)}
-                    sx={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
-                  >
-                    <EditOutlined
-                      sx={{
-                        color: (theme) => theme.palette.text.primary,
-                      }}
-                    />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </Stack>
-          ) : (
-            <Skeleton variant="circular" width="2.5rem" height="2.5rem" />
-          )}
-          <Typography variant="h1">
-            {user ? user.tag : <Skeleton width="10rem" />}
-          </Typography>
-        </Stack>
-        <Stack direction="row" spacing="0.25rem" alignItems="center">
-          {user ? (
-            <>
-              {user.team && (
-                <Chip
-                  component={Link}
-                  to={`/teams/${user.team.id}`}
-                  size="small"
-                  color="inverse"
-                  label={`TEAM ${user.team.name}`}
-                  clickable
-                  sx={{
-                    textTransform: 'none',
-                    '& .MuiChip-label': {
-                      color: (theme) => theme.palette.background.s0,
-                    },
-                    '&:hover': {
-                      background: (theme) =>
-                        `color-mix(in srgb, ${theme.palette.background.s1}, white 88%)`,
-                    },
-                  }}
-                />
-              )}
-              <Chip
-                size="medium"
-                variant="text"
-                label={`spécialité ${user.specialty}`}
-              />
-            </>
-          ) : (
-            <>
-              <Skeleton variant="rounded" width="4rem" height="1.5rem" />
-              <Skeleton variant="rounded" width="8rem" height="1.5rem" />
-            </>
-          )}
-        </Stack>
+            )}
+            <Chip
+              size="medium"
+              variant="text"
+              label={`Spécialité ${user?.specialty ? user.specialty.charAt(0).toUpperCase() + user.specialty.slice(1) : ''}`}
+            />
+          </>
+        ) : (
+          <>
+            <Skeleton
+              variant="rounded"
+              width="7.5rem"
+              height="1.5rem"
+              sx={{ borderRadius: '100rem' }}
+            />
+            <Skeleton variant="text" width="10rem" height="1.75rem" />
+          </>
+        )}
       </Stack>
-      <ProfileImageModal
-        open={openProfileImageModal}
-        onClose={() => setOpenProfileImageModal(false)}
-        onSelect={handleAvatarSelect}
-      />
-    </>
+    </Stack>
   );
 };

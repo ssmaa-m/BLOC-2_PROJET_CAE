@@ -8,7 +8,7 @@ Content-Type: application/json
 
 {
   "email": "player@test.com",
-  "password": "password123",
+  "password": "Password123!",
   "tag": "PlayerOne"
 }
 
@@ -18,7 +18,7 @@ Content-Type: application/json
 
 {
   "email": "player@test.com",
-  "password": "password123"
+  "password": "Password123!"
 }
 
 > {% client.global.set("auth_token", response.body.token); %}
@@ -38,7 +38,7 @@ Content-Type: application/json
 
 {
   "email": "joiner@test.com",
-  "password": "password123",
+  "password": "Password123!",
   "tag": "Joiner"
 }
 
@@ -48,7 +48,7 @@ Content-Type: application/json
 
 {
   "email": "joiner@test.com",
-  "password": "password123"
+  "password": "Password123!"
 }
 
 > {% client.global.set("joiner_token", response.body.token); %}

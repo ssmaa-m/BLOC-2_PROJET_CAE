@@ -1,55 +1,55 @@
 @baseUrl = http://localhost:3000
 
-# ----------- Team Creation Tests -----------
+# ----------- TEAM CREATION -----------
 
-### 1: Register a new member
+### 1: REGISTER A NEW MEMBER A
 POST {{baseUrl}}/auths/register
 Content-Type: application/json
 
 {
-  "email": "player@test.com",
-  "password": "password123",
-  "tag": "PlayerOne"
+  "email": "userA@test.com",
+  "password": "Password123!",
+  "tag": "UserA"
 }
 
-### 2: Login to get JWT token (stored in auth_token)
+### 2: LOGIN USER A
 POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "username": "player@test.com",
-  "password": "password123"
+  "email": "userA@test.com",
+  "password": "Password123!"
 }
 
-> {% client.global.set("auth_token", response.body.token); %}
+> {% client.global.set("tokenA", response.body.token); %}
 
-### 3: Create a team (expect 201)
+### 3: CREATE A TEAM (201)
 POST {{baseUrl}}/teams/
 Content-Type: application/json
-Authorization: {{auth_token}}
+Authorization: {{tokenA}}
 
 {
-  "name": "My Team"
+  "name": "TeamA"
 }
 
-### 4: Create a team with duplicate name (expect 409)
+### 4: DUPLICATE TEAM (409)
 POST {{baseUrl}}/teams/
 Content-Type: application/json
-Authorization: {{auth_token}}
+Authorization: {{tokenA}}
 
 {
-  "name": "My Team"
+  "name": "TeamA"
 }
 
-### 5: Create a team without auth (expect 403)
+### 5: NO AUTH (403)
 POST {{baseUrl}}/teams/
 Content-Type: application/json
 
 {
-  "name": "No Auth Team"
+  "name": "NoAuth"
 }
 
-### 6: Create a team with blank name (expect 400)
+### 6: BLANK NAME (400)
 POST {{baseUrl}}/teams/
 Content-Type: application/json
 Authorization: {{auth_token}}
@@ -58,5 +58,68 @@ Authorization: {{auth_token}}
   "name": "  "
 }
 
-### 7: Get Team details as a visitor
-GET {{baseUrl}}/teams/1/details
+### 7: GET TEAM DETAILS AS VISITOR
+GET {{baseUrl}}/teams/4/details
+
+
+# ----------- QUIT TEAM -----------
+
+### 8. REGISTER USER B (no team)
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "userB@test.com",
+  "password": "Password123!",
+  "tag": "UserB"
+}
+
+### 9. LOGIN USER B
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "userB@test.com",
+  "password": "Password123!"
+}
+
+> {% client.global.set("tokenB", response.body.token); %}
+
+### 10. QUIT TEAM WITHOUT BEING IN ONE (400)
+POST {{baseUrl}}/teams/quit
+Authorization: {{tokenB}}
+
+
+### ----------- RESIGN MANAGER -----------
+
+### 11. RESIGN WITHOUT REPLACEMENT (ONLY manager) -> 409
+PUT {{baseUrl}}/teams/4/resign
+Authorization: {{tokenA}}
+
+
+# ----------- ADVANCED RESIGN (WITH REPLACEMENT) -----------
+
+### 12. REGISTER USER C
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "userC@test.com",
+  "password": "Password123!",
+  "tag": "UserC"
+}
+
+### 13. LOGIN USER C
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "userC@test.com",
+  "password": "Password123!"
+}
+
+> {% client.global.set("tokenC", response.body.token); %}
+
+### 14. RESIGN WITH REPLACEMENT NOT IN TEAM (400)
+PUT {{baseUrl}}/teams/4/resign?replacementId=3
+Authorization: {{tokenA}}

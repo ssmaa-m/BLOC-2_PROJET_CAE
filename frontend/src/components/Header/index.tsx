@@ -1,80 +1,121 @@
 import { Button, Stack, Tab, Tabs, Typography } from '@mui/material';
-import logo from '../../assets/images/Logo.svg';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { SyntheticEvent, useContext } from 'react';
+import logo from '../../assets/images/logo.svg';
+import { Link, useLocation } from 'react-router-dom';
+import { useContext } from 'react';
 import { NotificationMenu } from './components/NotificationMenu';
 import { UserContext } from '../../contexts/UserContext';
 import { UserMenu } from './components/UserMenu';
-import { AdminMenu } from './components/AdminMenu';
+import { AdminManagementModal } from './modals/AdminManagementModal';
+import { useState } from 'react';
+import { useTournamentModal } from '../../hooks/useTournamentModal';
+
 export const Header = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { authenticatedUser } = useContext(UserContext);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const { openCreateModal } = useTournamentModal();
+
   return (
-    <Stack
-      component="header"
-      direction="row"
-      height="5rem"
-      padding="0 2.25rem"
-      alignItems="center"
-      sx={{
-        background: (theme) => theme.palette.background.s1,
-        border: (theme) => `1px solid ${theme.palette.divider}`,
-      }}
-    >
-      <Link to="/" style={{ textDecoration: 'none', height: '100%' }}>
-        <Stack
-          direction="row"
-          spacing="0.75rem"
-          alignItems="center"
-          paddingRight="2.5rem"
-          height="100%"
-        >
-          <img src={logo} alt="logo" width={24} height={24} />
-          <Typography variant="h4">Vinci Arena</Typography>
-        </Stack>
-      </Link>
-      <Tabs
-        value={
-          location.pathname === '/'
-            ? '/'
-            : location.pathname.startsWith('/teams')
-              ? '/teams'
-              : false
-        }
-        sx={{ flex: 1 }}
-        onChange={(_e: SyntheticEvent, newValue: string) => navigate(newValue)}
+    <>
+      <Stack
+        component="header"
+        direction="row"
+        height="5rem"
+        padding="0 2.25rem"
+        alignItems="center"
+        sx={{
+          background: (theme) => theme.palette.background.s1,
+          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+        }}
       >
-        <Tab label="tournois" value="/" />
-        <Tab label="teams" value="/teams" />
-      </Tabs>
-      <Stack direction="row" spacing="1.5rem">
-        <Stack direction="row" spacing="1rem">
-          {authenticatedUser?.admin && (
-            <Stack direction="row" spacing="1rem">
-              <Button variant="contained">Créer un tournoi</Button>
-              <AdminMenu />
-            </Stack>
-          )}
-          {authenticatedUser ? (
-            <>
-              <NotificationMenu />
-              <UserMenu />
-            </>
-          ) : (
-            <>
-              <Link to="/auth/register">
-                <Button variant="contained" color="secondary">
-                  s'inscrire
+        <Link to="/" style={{ textDecoration: 'none', height: '100%' }}>
+          <Stack
+            direction="row"
+            spacing="0.75rem"
+            alignItems="center"
+            paddingRight="2.5rem"
+            height="100%"
+          >
+            <img src={logo} alt="logo" width={24} height={24} />
+            <Typography variant="h4">Vinci Arena</Typography>
+          </Stack>
+        </Link>
+        <Tabs
+          value={
+            location.pathname.startsWith('/teams')
+              ? '/teams'
+              : location.pathname.startsWith('/tournaments')
+                ? '/tournaments'
+                : false
+          }
+          sx={{ flex: 1 }}
+        >
+          <Tab
+            label="Tournois"
+            value="/tournaments"
+            component={Link}
+            to="/tournaments"
+            data-testid="nav-tournaments-tab"
+          />
+          <Tab
+            label="Teams"
+            value="/teams"
+            component={Link}
+            to="/teams"
+            data-testid="nav-teams-tab"
+          />
+        </Tabs>
+        <Stack direction="row" spacing="1.5rem">
+          <Stack direction="row" spacing="1rem">
+            {authenticatedUser?.admin && (
+              <Stack direction="row" spacing="1rem">
+                <Button
+                  variant="contained"
+                  onClick={() => openCreateModal()}
+                  data-testid="admin-create-tournament-button"
+                >
+                  Créer un Tournoi
                 </Button>
-              </Link>
-              <Link to="/auth/login">
-                <Button variant="contained">se connecter</Button>
-              </Link>
-            </>
-          )}
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => setIsAdminModalOpen(true)}
+                  data-testid="admin-manage-members-button"
+                >
+                  Gérer les Membres
+                </Button>
+              </Stack>
+            )}
+            {authenticatedUser ? (
+              <>
+                <NotificationMenu />
+                <UserMenu />
+              </>
+            ) : (
+              <>
+                <Link to="/auth/register">
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    data-testid="header-register-button"
+                  >
+                    S'Inscrire
+                  </Button>
+                </Link>
+                <Link to="/auth/login">
+                  <Button variant="contained" data-testid="header-login-button">
+                    Se Connecter
+                  </Button>
+                </Link>
+              </>
+            )}
+          </Stack>
         </Stack>
       </Stack>
-    </Stack>
+      <AdminManagementModal
+        open={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+      />
+    </>
   );
 };

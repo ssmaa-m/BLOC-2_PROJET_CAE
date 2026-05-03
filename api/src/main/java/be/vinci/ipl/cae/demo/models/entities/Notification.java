@@ -3,6 +3,8 @@ package be.vinci.ipl.cae.demo.models.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -43,5 +45,11 @@ public class Notification {
   @Column(nullable = false)
   private LocalDateTime dateTime = LocalDateTime.now();
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private NotificationType type;
+
+  @Column(nullable = true)
+  private Long idReference;
 
 }

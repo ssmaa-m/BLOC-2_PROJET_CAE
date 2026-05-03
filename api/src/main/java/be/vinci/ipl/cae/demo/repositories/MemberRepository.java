@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.repositories;
 
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,7 +9,8 @@ import org.springframework.stereotype.Repository;
  * Member Repository.
  */
 @Repository
-public interface MemberRepository extends CrudRepository<Member, Long> {
+public interface MemberRepository
+    extends CrudRepository<Member, Long>, JpaSpecificationExecutor<Member> {
 
   /**
    * Finds Member by email.
@@ -32,5 +34,5 @@ public interface MemberRepository extends CrudRepository<Member, Long> {
    * @param isDeleted deleted status
    * @return an array of members
    */
-  Member[] findAllByIsDeleted(boolean isDeleted);
+  Member[] findAllByIsDeletedOrderByTagAsc(boolean isDeleted);
 }

@@ -1,93 +1,33 @@
-import {
-  useState,
-  MouseEvent,
-  useContext,
-  useEffect,
-  useCallback,
-} from 'react';
+import { useState, MouseEvent } from 'react';
 import {
   Badge,
   IconButton,
   Menu,
   Typography,
   Divider,
-  Link,
   Stack,
   Button,
 } from '@mui/material';
-import { UserContext } from '../../../contexts/UserContext';
-import { useNavigate } from 'react-router-dom';
-import { NotificationDto } from '../../../types';
+import { Link } from 'react-router-dom';
 import { NotificationItem } from '../../NotificationItem';
-import { NotificationsOutlined } from '@mui/icons-material';
+import { Bell } from '@gravity-ui/icons';
+import { useNotifications } from '../../../hooks/useNotifications';
 
 export const NotificationMenu = () => {
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
-  const [unreadNotifications, setUnreadNotifications] = useState<
-    NotificationDto[]
-  >([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const { authenticatedUser } = useContext(UserContext);
-  const navigate = useNavigate();
+  const { unreadNotifications, unreadCount, getAll } = useNotifications();
 
   const isOpen = menuPosition != null;
 
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
     setMenuPosition(event.currentTarget);
-    fetchUnreadNotifications();
-  };
-
-  const handleSeeAllCLick = () => {
-    navigate('/notifications');
-    handleClose();
+    getAll(true);
   };
 
   const handleClose = () => {
     setMenuPosition(null);
   };
 
-  const fetchUnreadNotifications = async () => {
-    if (!authenticatedUser?.token) return;
-    try {
-      const response = await fetch(
-        `/api/notifications/member/${authenticatedUser.id}?unreadOnly=true`,
-        { headers: { Authorization: authenticatedUser.token } },
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setUnreadNotifications(data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch unreadNotifications', err);
-      setUnreadNotifications([]);
-    }
-  };
-
-  const fetchUnreadCount = useCallback(async () => {
-    if (!authenticatedUser?.token) return;
-    try {
-      const response = await fetch(
-        `/api/notifications/member/${authenticatedUser.id}/unread-count`,
-        { headers: { Authorization: authenticatedUser.token } },
-      );
-      if (response.ok) {
-        const data = await response.text();
-        setUnreadCount(parseInt(data));
-      }
-    } catch (err) {
-      console.error('Failed to fetch unread count', err);
-    }
-  }, [authenticatedUser]);
-
-  useEffect(() => {
-    if (!authenticatedUser) {
-      setUnreadCount(0);
-      return;
-    }
-    fetchUnreadCount();
-    const intervalId = setInterval(fetchUnreadCount, 10000);
-    return () => clearInterval(intervalId);
-  }, [authenticatedUser, fetchUnreadCount]);
   return (
     <>
       <IconButton
@@ -97,11 +37,17 @@ export const NotificationMenu = () => {
           background: (theme) =>
             isOpen ? theme.palette.background.s4 : 'transparent',
         }}
+        data-testid="notification-menu-button"
       >
-        <Badge badgeContent={unreadCount} color="primary">
-          <NotificationsOutlined />
+        <Badge
+          badgeContent={unreadCount}
+          color="primary"
+          data-testid="notification-badge"
+        >
+          <Bell />
         </Badge>
       </IconButton>
+
       <Menu
         open={isOpen}
         onClose={handleClose}
@@ -114,9 +60,18 @@ export const NotificationMenu = () => {
           vertical: 'top',
           horizontal: 'right',
         }}
-        sx={{
-          '& .MuiPaper-root': {
-            marginTop: '0.375rem',
+        slotProps={{
+          paper: {
+            sx: {
+              width: '25rem',
+              marginTop: '0.375rem',
+            },
+          },
+        }}
+        MenuListProps={{
+          sx: {
+            padding: 0,
+            gap: 0,
           },
         }}
       >
@@ -125,28 +80,35 @@ export const NotificationMenu = () => {
           justifyContent="space-between"
           alignItems="center"
           minWidth="15rem"
-          padding="0.5rem 1.5rem 0.75rem 1.5rem"
+          padding="0.75rem 1rem 0.75rem 1rem"
           sx={{
             outline: 'none',
           }}
         >
           <Typography variant="h4">Notifications</Typography>
-          <Link
-            onClick={handleSeeAllCLick}
-            variant="caption"
-            color="primary"
-            sx={{ cursor: 'pointer' }}
+          <Button
+            component={Link}
+            to="/notifications"
+            onClick={handleClose}
+            variant="contained"
+            color="secondary"
+            size="small"
+            data-testid="notification-view-all-button"
           >
-            <Button variant="contained" color="secondary" size="small">
-              voir tout
-            </Button>
-          </Link>
+            Voir Tout
+          </Button>
         </Stack>
+
         <Divider />
+
         {unreadNotifications.length === 0 ? (
           <Stack padding="2rem 1.5rem" spacing="0.25rem" alignItems="center">
-            <Typography variant="h5" textAlign="center">
-              Rien à signaler!
+            <Typography
+              variant="h5"
+              textAlign="center"
+              data-testid="notifications-empty-state"
+            >
+              Rien à signaler !
             </Typography>
             <Typography
               variant="body2"
@@ -158,17 +120,15 @@ export const NotificationMenu = () => {
             </Typography>
           </Stack>
         ) : (
-          unreadNotifications.map((notif, index) => (
-            <NotificationItem
-              key={notif.idNotification}
-              notification={notif}
-              isLast={index === unreadNotifications.length - 1}
-              onRefresh={() => {
-                fetchUnreadNotifications();
-                setUnreadCount(unreadCount - 1);
-              }}
-            />
-          ))
+          <Stack divider={<Divider />} data-testid="notification-list">
+            {unreadNotifications.map((notif) => (
+              <NotificationItem
+                key={notif.idNotification}
+                notification={notif}
+                data-testid="notification-item"
+              />
+            ))}
+          </Stack>
         )}
       </Menu>
     </>

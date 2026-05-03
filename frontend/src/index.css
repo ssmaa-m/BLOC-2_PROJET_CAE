@@ -1,9 +1,44 @@
 #root {
+  color: #ffffff;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  color: #ffffff;
-  overflow-x: hidden;
+  height: 100vh;
+}
+
+main {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3c3c3c;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4c4c4c;
+  background-clip: content-box;
+}
+
+@-moz-document url-prefix() {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #3c3c3c transparent;
+  }
 }
 
 a {
@@ -70,5 +105,24 @@ a {
     --6-y-position: 15%;
     --7-x-position: 15%;
     --7-y-position: 85%;
+  }
+}
+
+.opacity-pulse {
+  animation-name: pulse;
+  animation-iteration-count: infinite;
+  animation-duration: 2s;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
   }
 }

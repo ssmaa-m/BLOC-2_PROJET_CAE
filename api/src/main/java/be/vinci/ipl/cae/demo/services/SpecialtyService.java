@@ -29,11 +29,9 @@ public class SpecialtyService {
    */
   public Iterable<SpecialtyDto> readAllSpecialties() {
     Iterable<Specialty> iter = specialtyRepository.findAll();
-    return StreamSupport.stream(iter.spliterator(), false)
-        .map(s -> SpecialtyDto.builder()
-            .id(s.getIdSpecialty())
-            .label(s.getName())
-            .build())
+    return StreamSupport
+        .stream(iter.spliterator(), false)
+        .map(s -> SpecialtyDto.builder().id(s.getIdSpecialty()).label(s.getName()).build())
         .collect(Collectors.toList());
   }
 }

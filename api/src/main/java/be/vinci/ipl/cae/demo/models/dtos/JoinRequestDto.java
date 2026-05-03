@@ -12,11 +12,12 @@ import lombok.Data;
 @Builder
 public class JoinRequestDto {
 
-  private ProfileDto requester;
+  private UserSummaryDto requester;
   private Long idJoinRequest;
   private Long idTeam;
   private String teamName;
   private RequestStatus status;
+  private String rejectionReason;
   private LocalDateTime expirationDate;
 
 }

@@ -1,0 +1,123 @@
+@baseUrl = http://localhost:3000
+
+### Login Manager
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "lea@mail.com",
+  "password": "Password1!"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### POST: valid case
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Vincii Arena Opening",
+  "description": "The very first tournament of the year.",
+  "capacity": 16,
+  "registrationDeadline": "2026-04-15T20:00:00",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-22"
+}
+
+
+### POST: error - missing payload (400)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{}
+
+### POST: error - blank name (400)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "   ",
+  "description": "Valid description",
+  "capacity": 16,
+  "registrationDeadline": "2026-04-15",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-22"
+}
+
+### POST: error - non-positive teams (400)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Small Tournament",
+  "description": "Testing max teams",
+  "capacity": 0,
+  "registrationDeadline": "2026-04-15",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-22"
+}
+
+### POST: error - registration deadline in the past (400)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Past Tournament",
+  "description": "This should fail",
+  "capacity": 8,
+  "registrationDeadline": "2020-01-01",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-22"
+}
+
+### POST: error - end date before start date (400)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Time Traveler Cup",
+  "description": "Ends before it starts",
+  "capacity": 8,
+  "registrationDeadline": "2026-04-15",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-18"
+}
+
+### POST: error - no authorization (401/403)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+
+{
+  "name": "Anonymous Tournament",
+  "description": "No token provided",
+  "capacity": 16,
+  "registrationDeadline": "2026-04-15",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-22"
+}
+
+### 5. Publish Tournament (The new Patch)
+# This should move status from IN_PREPARATION to REGISTRATION_OPEN (or OPEN)
+PATCH {{baseUrl}}/tournaments/8/publish
+Authorization: {{auth_token}}
+
+### Update
+# Updates the tournament with the "Elite" description we picked
+PUT {{baseUrl}}/tournaments/16
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Vinci Masters Invitational 2026",
+  "description": "The premier annual indoor competition for regional qualifiers. This year’s Masters features a double-elimination bracket on synthetic courts. High-intensity matches, professional refereeing, and a €500 prize pool.",
+  "capacity": 32,
+  "registrationDeadline": "2026-04-15T20:00:00",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-25"
+}

@@ -1,4 +1,4 @@
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowLeft } from '@gravity-ui/icons';
 import { Button, Stack, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 
@@ -27,8 +27,8 @@ export const NotFoundPage = ({
         {error.subtitle}
       </Typography>
       <Link to="/">
-        <Button startIcon={<ArrowBack />} variant="contained" color="secondary">
-          Retour en lieu sûr
+        <Button startIcon={<ArrowLeft />} variant="contained" color="secondary">
+          Retour en Lieu Sûr
         </Button>
       </Link>
     </Stack>

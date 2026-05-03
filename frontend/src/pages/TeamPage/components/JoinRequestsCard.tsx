@@ -2,25 +2,21 @@ import { Stack, Typography } from '@mui/material';
 import { TeamDetailsInfoDto } from '../../../types';
 import { JoinRequestItem } from './JoinRequestItem';
 
-interface JoinRequestsCardProps {
-  team: TeamDetailsInfoDto;
-  isLoading: boolean;
-  showNotification: (msg: string) => void;
-  onActionSuccess: () => void;
-}
-
 export const JoinRequestsCard = ({
   team,
-  showNotification,
-  onActionSuccess,
-}: JoinRequestsCardProps) => {
+  setTeam,
+}: {
+  team: TeamDetailsInfoDto;
+  isLoading: boolean;
+  setTeam: React.Dispatch<React.SetStateAction<TeamDetailsInfoDto | undefined>>;
+}) => {
   return (
     <>
       <Stack
         sx={{ background: (theme) => theme.palette.background.s1 }}
         padding="1.25rem 1rem 1rem"
-        borderRadius="0.5rem"
-        spacing="1rem"
+        borderRadius="1.5rem"
+        spacing="1.25rem"
       >
         <Typography variant="h4">Demandes d'adhésion</Typography>
         <Stack spacing="0.75rem" flexWrap="wrap">
@@ -29,23 +25,24 @@ export const JoinRequestsCard = ({
             0 ? (
             team.joinRequests
               .filter((jr) => jr.status === 'PENDING')
-              .map((jr) => (
+              ?.map((jr) => (
                 <JoinRequestItem
                   key={jr.idJoinRequest}
                   joinRequest={jr}
-                  showNotification={showNotification}
-                  onActionSuccess={onActionSuccess}
+                  setTeam={setTeam}
                 />
               ))
           ) : (
             <Stack
-              padding="2rem 1.5rem"
+              padding="1.5rem 1.5rem"
               spacing="0.25rem"
               alignItems="center"
               width="100%"
+              borderRadius="0.75rem"
+              sx={{ background: (theme) => theme.palette.background.s2 }}
             >
               <Typography variant="h5" textAlign="center">
-                Aucune demande d'adhésion
+                Rien à signaler !
               </Typography>
               <Typography
                 variant="body2"
@@ -53,7 +50,7 @@ export const JoinRequestsCard = ({
                 width="14rem"
                 color="text.secondary"
               >
-                Rien à signaler !
+                Aucune demande d'adhésion pour le moment.
               </Typography>
             </Stack>
           )}

@@ -10,7 +10,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -40,11 +39,8 @@ public class AuthController {
    * @return true if invalid
    */
   private boolean isInvalidCredentials(Credentials credentials) {
-    return credentials == null
-        || credentials.getEmail() == null
-        || credentials.getEmail().isBlank()
-        || credentials.getPassword() == null
-        || credentials.getPassword().isBlank();
+    return credentials == null || credentials.getEmail() == null || credentials.getEmail().isBlank()
+        || credentials.getPassword() == null || credentials.getPassword().isBlank();
   }
 
   /**
@@ -54,20 +50,11 @@ public class AuthController {
    */
   @PostMapping("/register")
   public void register(@RequestBody NewMember newMember) {
-
-    if (newMember == null
-        || newMember.getEmail() == null
-        || newMember.getEmail().isBlank()
-        || newMember.getPassword() == null
-        || newMember.getPassword().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    if (newMember == null || newMember.getEmail() == null || newMember.getEmail().isBlank()
+        || newMember.getPassword() == null || newMember.getPassword().isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ou mot de passe manquant");
     }
-
-    Member member = memberService.register(newMember);
-
-    if (member == null) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT);
-    }
+    memberService.register(newMember);
   }
 
   /**
@@ -78,56 +65,11 @@ public class AuthController {
    */
   @PostMapping("/login")
   public AuthenticatedUser login(@RequestBody Credentials credentials) {
-
     if (isInvalidCredentials(credentials)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ou mot de passe manquant");
     }
 
-    AuthenticatedUser user = memberService.login(
-        credentials.getEmail(),
-        credentials.getPassword()
-    );
-
-    if (user == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-
-    return user;
-  }
-
-  /**
-   * Returns the authenticated user based on the JWT token.
-   *
-   * @param authorization the Authorization header containing the JWT token
-   * @return the authenticated user
-   */
-  @GetMapping("/me")
-  public AuthenticatedUser getMe(@RequestHeader("Authorization") String authorization) {
-
-    if (authorization == null || !authorization.startsWith("Bearer ")) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-
-    String token = authorization.substring(7);
-    String email = memberService.verifyJwtToken(token);
-
-    if (email == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-
-    Member member = memberService.readOneFromEmail(email);
-
-    if (member == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-
-    AuthenticatedUser user = new AuthenticatedUser();
-    user.setId(member.getIdMember());
-    user.setEmail(member.getEmail());
-    user.setTag(member.getTag());
-    user.setToken(token);
-
-    return user;
+    return memberService.login(credentials.getEmail(), credentials.getPassword());
   }
 
   /**
@@ -138,9 +80,8 @@ public class AuthController {
    */
   @GetMapping("/login/me")
   public AuthenticatedUser relog(@AuthenticationPrincipal Member currentMember) {
-
     if (currentMember == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
 
     return memberService.createJwtToken(currentMember.getEmail());

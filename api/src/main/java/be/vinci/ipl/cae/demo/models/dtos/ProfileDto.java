@@ -30,6 +30,8 @@ public class ProfileDto {
     private Long id;
     private String name;
     private boolean isManager;
+    private int membersCount;
+    private boolean hasOtherManager;
   }
 
   /**

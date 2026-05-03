@@ -1,33 +1,27 @@
 import { Button, Menu, MenuItem, Typography } from '@mui/material';
-import { MouseEvent, useContext, useState } from 'react';
+import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
-import { ArrowDropDown } from '@mui/icons-material';
+import { ChevronDown } from '@gravity-ui/icons';
 import { useNavigate } from 'react-router-dom';
+import { useMenuDisclosure } from '../../../hooks/useMenuDisclosure';
 
 export const UserMenu = () => {
   const navigate = useNavigate();
   const { authenticatedUser, clearUser } = useContext(UserContext);
-  const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
-  const isOpen = menuPosition != null;
-  const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
-    setMenuPosition(event.currentTarget);
-  };
-  const handleClose = () => {
-    setMenuPosition(null);
-  };
+  const { anchorEl, handleClick, handleClose } = useMenuDisclosure();
   return (
     <>
       <Button
-        sx={{ textTransform: 'none' }}
         variant="contained"
         color="secondary"
-        onClick={handleMenuClick}
+        onClick={handleClick}
+        data-testid="user-menu-button"
         endIcon={
-          <ArrowDropDown
-            sx={{
+          <ChevronDown
+            style={{
               color: 'text.secondary',
-              transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
-              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'rotate 0.2s cubic-bezier(0.2, 0, 0, 1)',
+              rotate: anchorEl ? '180deg' : '0deg',
             }}
           />
         }
@@ -36,9 +30,9 @@ export const UserMenu = () => {
       </Button>
 
       <Menu
-        open={isOpen}
+        open={Boolean(anchorEl)}
         onClose={handleClose}
-        anchorEl={menuPosition}
+        anchorEl={anchorEl}
         sx={{
           '& .MuiPaper-root': {
             width: 'fit-content',
@@ -58,6 +52,7 @@ export const UserMenu = () => {
             navigate(`/users/${authenticatedUser?.id}`);
             handleClose();
           }}
+          data-testid="user-menu-profile"
         >
           <Typography variant="h5">Mon Profil</Typography>
         </MenuItem>
@@ -65,8 +60,8 @@ export const UserMenu = () => {
           onClick={() => {
             clearUser();
             handleClose();
-            navigate('/');
           }}
+          data-testid="user-menu-logout"
         >
           <Typography variant="h5" color="error">
             Se Déconnecter

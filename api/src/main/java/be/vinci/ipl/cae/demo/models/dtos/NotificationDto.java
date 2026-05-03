@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.models.dtos;
 
+import be.vinci.ipl.cae.demo.models.entities.NotificationType;
 import java.time.LocalDateTime;
 
 /**
@@ -11,6 +12,6 @@ import java.time.LocalDateTime;
  * @param dateTime creation date
  */
 public record NotificationDto(long idNotification, String content, boolean isRead,
-                              LocalDateTime dateTime) {
+                              LocalDateTime dateTime, NotificationType type, Long idReference) {
 
 }

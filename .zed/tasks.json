@@ -1,0 +1,7 @@
+[
+  {
+    "label": "Run Docker",
+    "command": "docker compose up --build",
+    "use_new_terminal": false,
+  },
+]

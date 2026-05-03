@@ -9,7 +9,7 @@ Content-Type: application/json
 
 {
   "email": "manager@test.com",
-  "password": "password123",
+  "password": "Password123!",
   "tag": "ManagerOne"
 }
 
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 {
   "email": "manager@test.com",
-  "password": "password123"
+  "password": "Password123!"
 }
 
 > {% client.global.set("auth1_token", response.body.token); %}
@@ -41,7 +41,7 @@ Content-Type: application/json
 
 {
   "email": "manager2@test.com",
-  "password": "password123",
+  "password": "Password123!",
   "tag": "ManagerTwo"
 }
 
@@ -51,7 +51,7 @@ Content-Type: application/json
 
 {
   "email": "manager2@test.com",
-  "password": "password123"
+  "password": "Password123!"
 }
 
 > {% client.global.set("auth2_token", response.body.token); %}
@@ -75,7 +75,7 @@ Content-Type: application/json
 
 {
   "email": "user1@test.com",
-  "password": "password123",
+  "password": "Password123!",
   "tag": "UserOne"
 }
 
@@ -85,7 +85,7 @@ Content-Type: application/json
 
 {
   "email": "user1@test.com",
-  "password": "password123"
+  "password": "Password123!"
 }
 
 > {%
@@ -117,7 +117,7 @@ Content-Type: application/json
 
 {
   "email": "user2@test.com",
-  "password": "password123",
+  "password": "Password123!",
   "tag": "UserTwo"
 }
 
@@ -127,7 +127,7 @@ Content-Type: application/json
 
 {
   "email": "user2@test.com",
-  "password": "password123"
+  "password": "Password123!"
 }
 
 > {%

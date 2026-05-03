@@ -1,0 +1,93 @@
+@baseUrl = http://localhost:3000
+
+### 2: Login Manager Alpha
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "lea@mail.com",
+  "password": "Password1!"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+
+### 2: Update Lineup - Success (4 Players)
+# Assuming match ID 1 was created in your seed data
+PATCH {{baseUrl}}/lineups/match/1
+Authorization: {{auth_token}}
+Content-Type: application/json
+
+{
+  "playerIds": [1, 2]
+}
+
+
+### 3: Update Lineup - Failure (Too many players)
+# Should return 400 Bad Request due to Size(max = 4)
+PATCH {{baseUrl}}/lineup/match/1
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "playerIds": [1, 2, 3, 4, 5]
+}
+
+
+### 4: Update Lineup - Failure (Forbidden)
+# Log in as a manager of TEAM_IOTA and try to change TEAM_ALPHA's match (ID 1)
+# First, log in as Lisa
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "lisa@mail.com",
+  "password": "Password1!"
+}
+
+> {% client.global.set("lisa_token", response.body.token); %}
+
+### Try to update Match 1 (Alpha vs Omega) as Lisa (Iota)
+PATCH {{baseUrl}}/matches/lineup/match/1
+Authorization:  {{lisa_token}}
+Content-Type: application/json
+
+{
+  "playerIds": [5, 6]
+}
+
+
+### 5: Update Lineup - Failure (No Auth)
+# Should return 401 Unauthorized
+PATCH {{baseUrl}}/lineup/match/1
+Content-Type: application/json
+
+{
+  "playerIds": [1]
+}
+
+### Case 1: Manager gets available members for a match
+# SENDER: Lea (Manager of Team Alpha)
+# EXPECTED: 200 OK + List of free members from Team Alpha
+GET {{baseUrl}}/matches/5/available-members
+Authorization: {{auth_token}}
+
+
+### Case 2: Regular user (non-manager) tries to get available members
+# SENDER: Pulse (Regular player)
+# EXPECTED: 403 Forbidden
+GET {{baseUrl}}/matches/1/available-members
+Authorization: {{auth_token}}
+
+
+
+### Case 3: Unauthorized (No Token)
+# EXPECTED: 401 Unauthorized
+GET {{baseUrl}}/matches/1/available-members
+
+###
+#
+GET {{baseUrl}}/lineups/matches/1/teams/1
+Authorization: {{auth_token}}
+
+

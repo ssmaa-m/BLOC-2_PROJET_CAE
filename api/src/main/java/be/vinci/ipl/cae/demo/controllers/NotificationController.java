@@ -3,7 +3,6 @@ package be.vinci.ipl.cae.demo.controllers;
 import be.vinci.ipl.cae.demo.models.dtos.NotificationDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
-import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.services.NotificationService;
 import java.util.Objects;
 import java.util.Optional;
@@ -13,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -28,32 +26,27 @@ import org.springframework.web.server.ResponseStatusException;
 public class NotificationController {
 
   private final NotificationService notificationService;
-  private final MemberRepository memberRepository;
 
   /**
    * Constructor initializes notificationService.
    *
    * @param notificationService = service
    */
-  public NotificationController(NotificationService notificationService,
-      MemberRepository memberRepository) {
+  public NotificationController(NotificationService notificationService) {
     this.notificationService = notificationService;
-    this.memberRepository = memberRepository;
   }
 
   /**
    * Route GET /notifications/member/{id}.
    *
-   * @param id = member ID
    * @return list of Notifications that belongs to the User
    */
-  @GetMapping("/member/{id}")
+  @GetMapping("/member/me")
   @PreAuthorize("isAuthenticated()")
-  public Iterable<NotificationDto> listNotifications(@PathVariable long id,
+  public Iterable<NotificationDto> listNotifications(
       @RequestParam(required = false, defaultValue = "false") boolean unreadOnly,
       @AuthenticationPrincipal Member currentMember) {
-    verifyAccess(id, currentMember);
-    return notificationService.getNotificationsByIdMember(id, unreadOnly);
+    return notificationService.getNotificationsByIdMember(currentMember.getIdMember(), unreadOnly);
   }
 
   /**
@@ -80,43 +73,11 @@ public class NotificationController {
   /**
    * Route GET /notifications/member/{id}/unread-count.
    *
-   * @param id member id
    * @return nb of unread notifs
    */
-  @GetMapping("/member/{id}/unread-count")
+  @GetMapping("/member/me/unread-count")
   @PreAuthorize("isAuthenticated()")
-  public long countUnreadNotifications(@PathVariable long id,
-      @AuthenticationPrincipal Member currentMember) {
-    verifyAccess(id, currentMember);
-    return notificationService.countUnreadNotifications(id);
-  }
-
-  // For tests ONLY: to be deleted before merging to main
-
-  /**
-   * Test notification for a said user id.
-   *
-   * @param id id of the member
-   */
-  @PostMapping("/test-insert/{id}")
-  public void insertTestData(@PathVariable long id) {
-    notificationService.notifyMember(id, "Notification 1");
-    notificationService.notifyMember(id, "Notification 2");
-    notificationService.notifyMember(
-        id,
-        "Notification 3 longgggggggggggggggggggggggggggggggggggggggggggggggg"
-            + "messageeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-    );
-    notificationService.notifyAllMembers("Hello everyone");
-
-  }
-
-  private void verifyAccess(long id, Member currentMember) {
-    if (currentMember == null || !Objects.equals(currentMember.getIdMember(), id)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-    if (!memberRepository.existsById(id)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
+  public long countUnreadNotifications(@AuthenticationPrincipal Member currentMember) {
+    return notificationService.countUnreadNotifications(currentMember.getIdMember());
   }
 }

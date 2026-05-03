@@ -26,7 +26,7 @@ public interface NotificationRepository extends CrudRepository<Notification, Lon
    * @param idMember the unique identifier of the member.
    * @return an iterable containing only unread notifications.
    */
-  Iterable<Notification> findByMemberIdMemberAndIsReadFalse(Long idMember);
+  Iterable<Notification> findByMemberIdMemberAndIsReadFalseOrderByDateTimeDesc(Long idMember);
 
   /**
    * Calculates the total count of unread notifications for a specific member. This is used to

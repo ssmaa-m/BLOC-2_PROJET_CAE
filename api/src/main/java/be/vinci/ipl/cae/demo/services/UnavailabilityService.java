@@ -37,7 +37,7 @@ public class UnavailabilityService {
    * Create a new unavailability for a member.
    *
    * @param member the member
-   * @param dto    the unavailability data
+   * @param dto the unavailability data
    * @return the created unavailability
    */
   public Unavailability create(Member member, NewUnavailabilityDto dto) {
@@ -51,7 +51,7 @@ public class UnavailabilityService {
   /**
    * Delete an unavailability by ID, only if it belongs to the given member.
    *
-   * @param id     the unavailability ID
+   * @param id the unavailability ID
    * @param member the member who owns the unavailability
    * @return true if deleted, false if not found or not owned by the member
    */

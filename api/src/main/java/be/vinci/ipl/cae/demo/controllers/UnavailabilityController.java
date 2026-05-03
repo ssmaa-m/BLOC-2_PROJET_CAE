@@ -4,6 +4,7 @@ import be.vinci.ipl.cae.demo.models.dtos.NewUnavailabilityDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Unavailability;
 import be.vinci.ipl.cae.demo.services.UnavailabilityService;
+import java.time.LocalDate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,7 +55,7 @@ public class UnavailabilityController {
    * Create a new unavailability for the authenticated member.
    *
    * @param currentMember the authenticated member
-   * @param dto           the unavailability data
+   * @param dto the unavailability data
    * @return the created unavailability
    */
   @PostMapping("/me")
@@ -66,15 +67,18 @@ public class UnavailabilityController {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
 
-    if (dto == null
-        || dto.getStartDate() == null
-        || dto.getEndDate() == null) {
+    if (dto == null || dto.getStartDate() == null || dto.getEndDate() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dates are required");
     }
 
     if (!dto.getStartDate().isBefore(dto.getEndDate())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
           "Start date must be before end date");
+    }
+
+    if (dto.getStartDate().isBefore(LocalDate.now().atStartOfDay())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must be in the future");
     }
 
     return unavailabilityService.create(currentMember, dto);
@@ -83,7 +87,7 @@ public class UnavailabilityController {
   /**
    * Delete an unavailability by ID (must belong to the authenticated member).
    *
-   * @param id            the unavailability ID
+   * @param id the unavailability ID
    * @param currentMember the authenticated member
    */
   @DeleteMapping("/{id}")

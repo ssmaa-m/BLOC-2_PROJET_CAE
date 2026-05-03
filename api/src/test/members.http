@@ -1,0 +1,87 @@
+### Login as admin
+POST http://localhost:3000/auths/login
+Content-Type: application/json
+
+{
+  "email": "lea@mail.com",
+  "password": "Password1!"
+}
+
+> {% client.global.set("admin_token", response.body.token); %}
+
+###
+
+### Get all members as admin
+GET http://localhost:3000/members/full
+Authorization: {{admin_token}}
+
+###
+
+### Ban a member (valid case)
+PATCH http://localhost:3000/members/2/ban
+Authorization: {{admin_token}}
+
+###
+
+### Login with banned member (should fail)
+POST http://localhost:3000/auths/login
+Content-Type: application/json
+
+{
+  "email": "tom@mail.com",
+  "password": "Password1!"
+}
+
+###
+
+### Login as normal user
+POST http://localhost:3000/auths/login
+Content-Type: application/json
+
+{
+  "email": "ines@mail.com",
+  "password": "Password1!"
+}
+
+> {% client.global.set("user_token", response.body.token); %}
+
+###
+
+### Ban attempt by non-admin (should fail)
+PATCH http://localhost:3000/members/3/ban
+Authorization: {{user_token}}
+
+###
+
+### Ban non-existing member
+PATCH http://localhost:3000/members/999/ban
+Authorization: {{admin_token}}
+
+###
+
+### Ban already banned member
+PATCH http://localhost:3000/members/2/ban
+Authorization: {{admin_token}}
+
+###
+
+### Self ban attempt (should fail)
+PATCH http://localhost:3000/members/1/ban
+Authorization: {{admin_token}}
+
+###
+
+### Ban an admin (should fail)
+PATCH http://localhost:3000/members/4/ban
+Authorization: {{admin_token}}
+
+###
+
+### Ban without authentication
+PATCH http://localhost:3000/members/2/ban
+
+###
+
+### Get public members list after ban
+GET http://localhost:3000/members/
+Authorization: {{admin_token}}

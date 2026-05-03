@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "check": "prettier --write . && eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && vitest",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "format": "prettier --write .",
@@ -19,12 +20,13 @@
     "@mui/icons-material": "^6.4.1",
     "@mui/material": "^6.4.1",
     "@mui/x-date-pickers": "^8.27.2",
-    "dayjs": "^1.11.19",
+    "dayjs": "^1.11.20",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.1"
   },
   "devDependencies": {
+    "@gravity-ui/icons": "^2.18.0",
     "@testing-library/react": "^16.2.0",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",

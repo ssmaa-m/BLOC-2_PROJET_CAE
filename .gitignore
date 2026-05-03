@@ -8,3 +8,9 @@ lost+found
 *.env
 ### IntelliJ
 .idea
+<<<<<<< HEAD
+
+frontend/coverage/
+=======
+coverage
+>>>>>>> 587b655a0d31fdb9087ac1f1c1bb6d13f84c8457

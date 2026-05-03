@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:3000
 
 
-### 1. Register a new member
+### Register a new member
 # Run this once to create the account in the DB
 POST {{baseUrl}}/auths/register
 Content-Type: application/json
@@ -10,39 +10,38 @@ Content-Type: application/json
   "email": "student@vinci.be",
   "password": "password123"
 }
-### 1. Login to refresh the Token
+### Login to refresh the Token
 # This script captures the token and saves it to the global environment
 POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "email": "larry@cae.com",
-  "password": "123"
+  "email": "lea@mail.com",
+  "password": "1"
 }
 
 > {%
   client.global.set("token", response.body.token);
-  // Since your JSON doesn't have the ID, we can't 'load' it yet.
-  // If you add idMember to your AuthenticatedUser.java,
-  // you could uncomment the line below:
-  // client.global.set("myId", response.body.idMember);
 %}
 
 
-### 2. Get my notifications (Dynamic Token)
-# If your ID is 3, keep it 3. If it's 1, change it to 1.
-GET {{baseUrl}}/notifications/member/1?unreadOnly=true
+### Get my notifications unreadOnly = true
+GET {{baseUrl}}/notifications/member/me?unreadOnly=true
 Authorization:{{token}}
 
+### GET my notifications unreadOnly = false
+GET {{baseUrl}}/notifications/member/me?unreadOnly=false
+Authorization:{{token}}
 
-### 3. Get unread count (Dynamic Token)
-GET {{baseUrl}}/notifications/member/1/unread-count
+### GET unreadCount
+GET {{baseUrl}}/notifications/member/me/unread-count
 Authorization: {{token}}
 
 
-### 4. Mark a specific notification as read
+### Mark a specific notification as read
 PATCH {{baseUrl}}/notifications/1/read
 Authorization: {{token}}
 
-### insert test notifications
-POST {{baseUrl}}/notifications/test-insert/1
+### Mark a specific notification as read , error case notif not found
+PATCH {{baseUrl}}/notifications/999/read
+Authorization: {{token}}

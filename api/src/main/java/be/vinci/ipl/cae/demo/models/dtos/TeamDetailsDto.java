@@ -14,8 +14,8 @@ public class TeamDetailsDto {
   private Long idTeam;
   private String name;
   private Boolean isActive;
-  private List<ProfileDto> managers;
-  private List<ProfileDto> members;
+  private List<UserSummaryDto> managers;
+  private List<UserSummaryDto> members;
   private List<JoinRequestDto> joinRequests;
 
 }

@@ -12,10 +12,10 @@ import org.springframework.stereotype.Repository;
 public interface UnavailabilityRepository extends CrudRepository<Unavailability, Long> {
 
   /**
-   * Finds unavailabilities by member.
+   * Finds unavailability by member.
    *
    * @param member the member
-   * @return iterable of unavailabilities
+   * @return iterable of unavailability
    */
   Iterable<Unavailability> findByMember(Member member);
 }

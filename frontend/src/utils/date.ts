@@ -1,7 +1,4 @@
 import dayjs from 'dayjs';
-import 'dayjs/locale/fr';
-
-dayjs.locale('fr');
 
 /**
  * Formats a date into a relative time string.
@@ -46,10 +43,15 @@ export const formatRelativeTime = (date: Date | string | number): string => {
  * Formats a date into a readable string like "25 oct. 2026".
  *
  * @param {Date | string | number} date The date to format
+ * @param {boolean} withYear Whether to include the year
  * @return {string} A formatted date string
  */
-export const formatDate = (date: Date | string | number): string => {
-  return dayjs(date).format('D MMM YYYY');
+export const formatDate = (
+  date: Date | string | number,
+  withYear: boolean = true,
+): string | null => {
+  if (!date) return null;
+  return dayjs(date).format(withYear ? 'D MMM YYYY' : 'D MMM');
 };
 
 /**
@@ -61,7 +63,7 @@ export const formatDate = (date: Date | string | number): string => {
 export const getDurationString = (dates: {
   startDate: dayjs.Dayjs;
   endDate: dayjs.Dayjs;
-}) => {
+}): string => {
   const diffInDays = dates.endDate.diff(dates.startDate, 'day');
   if (diffInDays < 0) return '';
   const weeks = Math.floor(diffInDays / 7);
@@ -80,19 +82,17 @@ export const getDurationString = (dates: {
  * @param {Object} start The start date.
  * @param {Object} end The end date.
  * @param {Array} unavailabilities An array of existing unavailabilities.
- * @return {string} A string representing the duration between the start and end dates.
+ * @return {string | null} A string representing the duration between the start and end dates.
  */
 export const checkOverlap = (
   start: dayjs.Dayjs,
   end: dayjs.Dayjs,
   unavailabilities: { id: number; startDate: string; endDate: string }[] | null,
-) => {
+): string | null => {
   const hasOverlap = (unavailabilities ?? []).some((u) => {
     const existingStart = dayjs(u.startDate);
     const existingEnd = dayjs(u.endDate);
     return start.isBefore(existingEnd) && end.isAfter(existingStart);
   });
-  return hasOverlap
-    ? 'Les dates sélectionnées chevauchent une indisponibilité existante.'
-    : null;
+  return hasOverlap ? 'Ces dates chevauchent une indisponibilité.' : null;
 };

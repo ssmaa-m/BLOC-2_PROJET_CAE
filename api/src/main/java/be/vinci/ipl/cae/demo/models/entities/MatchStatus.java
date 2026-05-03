@@ -4,7 +4,5 @@ package be.vinci.ipl.cae.demo.models.entities;
  * MatchStatus enum.
  */
 public enum MatchStatus {
-  PLANNED,
-  PLAYED,
-  FORFEIT
+  PLANNED, IN_PROGRESS, AWAITING_VALIDATION, PLAYED, FORFEIT
 }
